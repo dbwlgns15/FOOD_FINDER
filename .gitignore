@@ -1,2 +1,3 @@
-*.txt
+*.exe
 *.csv
+.ipynb_checkpoints/
