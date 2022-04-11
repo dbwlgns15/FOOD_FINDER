@@ -1,3 +1,7 @@
+세미프로젝트 공유 드라이브 : https://drive.google.com/drive/folders/1MeadyLQRxVak7XgxYtBEE6JMIo5WTPwr?usp=sharing
+
+
+
 **참고 자료** 
 \- 맛집지도 시각화 - 카카오맵 크롤링 방법https://nostalgiaa.tistory.com/36
 
