@@ -1,3 +1,4 @@
 *.exe
 *.csv
 .ipynb_checkpoints/
+gu_list/
