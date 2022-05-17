@@ -1,24 +1,23 @@
-# FOOD_FINDER
+# FOOD_FINDER(동작구)
 
-음식점 리뷰를 감성분석해서 맛집을 자동 추천해주는 시스템
+동작구 음식점 리뷰를 감성분석해서 맛집을 자동 추천해주는 시스템
 
 ----
 
-## 1. 데이터
+## 1. 공공데이터 및 학습데이터 다운로드
 
 - [서울시 일반음식점 인허가 정보(서울열린데이터광장)](https://data.seoul.go.kr/dataList/OA-16094/S/1/datasetView.do) 
-  서울시에 존재하는 모든 음식점 데이터파일 다운로드
+  서울시에 존재하는 모든 음식점 인허가 정보 데이터파일 다운로드
 
   ```python
   df = pd.read_csv("./서울특별시 일반음식점 인허가 정보.csv",
                    encoding='cp949')
   print('공공데이터 크기:',df.shape)
   df.head()
-  # 출력
   # 공공데이터 크기: (474939, 44)
   ```
 
-  ![공공데이터](./img/서울시공공데이터df.jpeg)
+  ![공공데이터](./img/서울시공공데이터.jpeg)
 
 - 리뷰 감성분석을 위한 학습데이터 다운로드
 
@@ -26,13 +25,78 @@
   df = pd.read_csv('./review_train.csv')
   print('리뷰 학습 데이터 크기:',df.shape)
   df.head()
-  # 출력
   # 리뷰 학습 데이터 크기: (50000, 2)
   ```
 
-  ![리뷰학습데이터](./img/리뷰학습데이터df.jpeg)
+  ![리뷰학습데이터](./img/리뷰학습데이터.jpeg)
 
+## 2. 공공데이터 전처리
 
+```python
+# 사용할 컬럼만 남기고 나머지 제거
+df = df[['상세영업상태코드','도로명주소','사업장명','좌표정보(X)','좌표정보(Y)']]
+df = df.reset_index(drop=True)
+print('공공데이터 크기:',df.shape)
+# 공공데이터 크기: (474939, 5)
+
+# 결측치 제거
+df = df.dropna()
+df = df.reset_index(drop=True)
+print('공공데이터 크기:',df.shape)
+# 공공데이터 크기: (222827, 5)
+
+# '상세영업상태코드' 1: 영업중 2: 폐업 -> 영업중인 음식점만 남기고 '상세영업상태코드' 컬럼 제거
+df = df[df["상세영업상태코드"] == 1]
+df = df[['도로명주소','사업장명','좌표정보(X)','좌표정보(Y)']]
+df = df.reset_index(drop=True)
+print('공공데이터 크기:',df.shape)
+# 공공데이터 크기: (121773, 4)
+
+# 도로명 주소에서 자치구를 분리한 후, 동작구만 추출
+df['자치구'] = [i.split()[1] for i in df['도로명주소']]
+df = df[df['자치구'] == '동작구']
+df = df.reset_index(drop=True)
+print('공공데이터 크기:',df.shape)
+# 공공데이터 크기: (3168, 5)
+
+# 도로명 주소에서 자치동을 분리한 후, 결측치 제거
+import re
+dong_list = []
+for address in df['도로명주소']:
+    try:
+        dong = re.findall('사당동|신대방동|흑석동|상도동|상도1동|대방동|노량진동',address)[0]
+        if dong == '상도1동':
+            dong = '상도동'
+        dong_list.append(dong)
+    except:
+        dong_list.append('error')
+df['자치동'] = dong_list
+df = df[df['자치동'] != 'error']
+df = df[['좌표정보(X)','좌표정보(Y)','자치구','자치동','사업장명']]
+df = df.reset_index(drop=True)
+print('공공데이터 크기:',df.shape)
+# 공공데이터 크기: (3140, 5)
+
+# XY좌표계를 경도,위도 좌표계로 변경
+import pyproj
+xy = np.array([[df['좌표정보(X)'][i], df['좌표정보(Y)'][i]] for i in range(df.shape[0])])
+def project_array(coord, p1_type, p2_type):
+    p1 = pyproj.Proj(init=p1_type)
+    p2 = pyproj.Proj(init=p2_type)
+    fx, fy = pyproj.transform(p1, p2, coord[:, 0], coord[:, 1])
+    return np.dstack([fx, fy])[0]
+p1_type = "epsg:2097"
+p2_type = "epsg:4326"
+result = project_array(xy, p1_type, p2_type)
+df['경도'] = result[:, 0]
+df['위도'] = result[:, 1]
+df = df[['자치구','자치동','사업장명','경도','위도']]
+print('공공데이터 크기:',df.shape)
+df
+# 공공데이터 크기: (3140, 5)
+```
+
+![공공데이터전처리후](./img/서울시공공데이터_전처리후.jpeg)
 
 
 
