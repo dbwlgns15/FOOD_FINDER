@@ -1,6 +1,6 @@
 # FOOD_FINDER(동작구)
 
-동작구 음식점 리뷰를 감성분석해서 맛집을 자동 추천해주는 시스템
+동작구 음식점의 카카오맵 리뷰를 감성분석해서 맛집을 자동 추천해주는 시스템
 
 ----
 
@@ -116,9 +116,44 @@
 
 ![공공데이터전처리후](./img/서울시공공데이터_전처리후.jpeg)
 
+# 3. 카카오맵 음식점 리뷰 크롤링
 
+1. '자치구+자치동+사업장명'으로 검색하여 리뷰코멘트 주소 크롤링
 
+   ```python
+   import requests
+   import bs4
+   from bs4 import BeautifulSoup
+   id_list = []
+   for i in range(df.shape[0]):
+       keyword = df['자치구'][i]+' '+df['자치동'][i]+' '+df['사업장명'][i] 
+       url = f'https://search.map.kakao.com/mapsearch/map.daum?callback=jQuery18105963491453995977_1649742498249&q={keyword}&msFlag=A&sort=0'
+       header = {
+           'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36',
+           'referer': 'https://map.kakao.com/'
+       }
+       response = requests.get(url, headers=header)
+       try:
+           confirmid = re.findall('confirmid":"([0-9]+)"',response.text)[0]
+           review_address = f'https://place.map.kakao.com/{confirmid}'
+           id_list.append(review_address)
+       except:
+           id_list.append('error')
+       print(f'\r{i+1}개 진행완료',end='')
+   # 3140개 진행완료
+   ```
 
+2. 카카오맵에 존재하지 않는 음식점 제거
+
+   ```python
+   df['리뷰주소'] = id_list
+   df = df[df['리뷰주소'] != 'error']
+   df = df.reset_index(drop=True)
+   print('공공데이터 크기:',df.shape)
+   # 공공데이터 크기: (2637, 6)
+   ```
+
+   
 
 
 
