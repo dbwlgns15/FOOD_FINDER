@@ -1,12 +1,42 @@
+# FOOD_FINDER
+
+음식점 리뷰를 감성분석해서 맛집을 자동 추천해주는 시스템
+
+----
+
+## 1. 데이터
+
+- [서울시 일반음식점 인허가 정보(서울열린데이터광장)](https://data.seoul.go.kr/dataList/OA-16094/S/1/datasetView.do) 
+  서울시에 존재하는 모든 음식점 데이터파일 다운로드
+
+  ```python
+  df = pd.read_csv("./서울특별시 일반음식점 인허가 정보.csv",
+                   encoding='cp949')
+  print('공공데이터 크기:',df.shape)
+  df.head()
+  # 출력
+  # 공공데이터 크기: (474939, 44)
+  ```
+
+  ![공공데이터](./img/서울시공공데이터df.jpeg)
+
+- 
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### 세미프로젝트 공유 드라이브
 
 https://drive.google.com/drive/folders/1MeadyLQRxVak7XgxYtBEE6JMIo5WTPwr?usp=sharing
-
-
-
-
-
-
 
 ### 참고자료
 
