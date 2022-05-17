@@ -20,7 +20,17 @@
 
   ![공공데이터](./img/서울시공공데이터df.jpeg)
 
-- 
+- 리뷰 감성분석을 위한 학습데이터 다운로드
+
+  ```python
+  df = pd.read_csv('./review_train.csv')
+  print('리뷰 학습 데이터 크기:',df.shape)
+  df.head()
+  # 출력
+  # 리뷰 학습 데이터 크기: (50000, 2)
+  ```
+
+  ![리뷰학습데이터](./img/리뷰학습데이터df.jpeg)
 
 
 
