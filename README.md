@@ -296,9 +296,99 @@
 
 1. 동작구 카카오맵 음식점 리뷰 전처리
 
+   - 동작구 카카오맵 리뷰 데이터 불러오기
 
+   ```python
+   test_df = pd.read_csv('./src/dongjack_review.csv')
+   test_df = test_df[['name','review']]
+   print('리뷰 학습 데이터 크기:',test_df.shape)
+   # 리뷰 학습 데이터 크기: (13650, 2)
+   ```
 
+   - 리뷰 데이터 한글제외 초성, 특수문자, 영어 제거
 
+   ```python
+   test_df['review'] = test_df['review'].str.replace('[^ 가-힣]',' ').str.replace(' +',' ')
+   ```
+
+   - 리뷰 데이터 형태소 분리
+
+   ```python
+   from konlpy.tag import Okt
+   
+   tag_list = ['Noun','Verb','Adjective','VerbPrefix']
+   okt = Okt()
+   tokenized_data = []  
+   for i in range(test_df.shape[0]):
+       tokenized_sentence = okt.pos(str(test_df['review'][i]), stem=True) # 토큰화
+       tag_checked_sentence = []
+       for j in tokenized_sentence:
+           x,y = j
+           if y in tag_list:
+               tag_checked_sentence.append(x)
+       print(f'\r{i+1}개 형태소분석 완료',end='')
+       tokenized_data.append(tag_checked_sentence)
+   for i in tokenized_data:
+       for j in range(len(i)):
+           i[j] = "'"+i[j]+"'"
+   test_df['토큰화댓글'] = tokenized_data
+   print('리뷰 학습 데이터 크기:',test_df.shape)
+   test_df.head()
+   # 13650개 형태소분석 완료
+   # 리뷰 학습 데이터 크기: (13650, 3)
+   ```
+
+   - 리뷰 길이가 3이하의 리뷰 제거
+
+   ```python
+   test_df = test_df[test_df['토큰화댓글'].str.len() > 3]
+   test_df = test_df.reset_index(drop=True) 
+   print('리뷰 학습 데이터 크기:',test_df.shape)
+   # 리뷰 학습 데이터 크기: (9662, 3)
+   ```
+
+![동작구리뷰전처리](./img/카카오맵_리뷰_전처리.jpeg)
+
+2. LSTM모델로 감성분석
+
+   - 토크나이저 불러오기 및 토큰화
+
+   ```pytho
+   import pickle
+   
+   with open('./src/tokenizer.pickle', 'rb') as handle:
+       tokenizer = pickle.load(handle)
+   tokenized_data = test_df['토큰화댓글']
+   test = tokenizer.texts_to_sequences(tokenized_data)
+   test = pad_sequences(test, maxlen=20)
+   test
+   ```
+
+   ![리뷰토큰화](./img/카카오맵_리뷰_전처리_토큰화.jpeg)
+
+   - 모델 불러오기 및 분석
+
+   ```python
+   from tensorflow.keras.models import load_model
+   from tensorflow.keras.preprocessing.sequence import pad_sequences
+   
+   model = load_model('./src/model.h5')
+   pred = model.predict(test)
+   test_df['score'] = pred
+   df = test_df[['name','score']]
+   df
+   ```
+
+   ![최종스코어](./img/최종스코어.jpeg)
+
+3. 최종 맛집 추천
+
+   
+
+   
+
+   
+   
 
 ## 6. 참고문헌
 
