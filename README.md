@@ -160,6 +160,69 @@
 
 # 4. 리뷰 학습 데이터로 LSTM 모델 학습
 
+1. 리뷰 학습 데이터 전처리
+
+   - 리뷰 학습 데이터 불러오기
+
+     ```python
+     df = pd.read_csv('./src/train.csv')
+     print('리뷰 학습 데이터 크기:',df.shape)
+     # 리뷰 학습 데이터 크기: (50000, 2)
+     ```
+
+   - 별점을 1과 0으로 라벨링
+
+     ```python
+     def score_evaluate(score):
+         if score >= 3.5:
+             return 1
+         else:
+             return 0
+     df['score'] = df['score'].apply(score_evaluate)
+     ```
+
+   - 한글을 제외한 초성,특수문자,영어 제거
+
+     ```python
+     df['review'] = df['review'].str.replace('[^ 가-힣]',' ').str.replace(' +',' ')
+     ```
+
+2. 리뷰 학습 데이터 형태소 분리
+
+   - konlpy okt 모듈을 이용해서 형태소 분리
+
+     ```python
+     from konlpy.tag import Okt
+     
+     tag_list = ['Noun','Verb','Adjective','VerbPrefix']
+     okt = Okt()
+     tokenized_data = []  
+     for i in range(df.shape[0]):
+         tokenized_sentence = okt.pos(df['review'][i], stem=True) # 토큰화
+         tag_checked_sentence = []
+         for j in tokenized_sentence:
+             x,y = j
+             if y in tag_list:
+                 tag_checked_sentence.append(x)
+         print(f'\r{i+1}개 형태소분석 완료',end='')
+         tokenized_data.append(tag_checked_sentence)
+     df['토큰화댓글'] = tokenized_data
+     # 50000개 형태소분석 완료
+     ```
+
+   - 단어 갯수가 3개 이하의 리뷰 제거
+
+     ```python
+     df = df[df['토큰화댓글'].str.len() > 3]
+     df = df.reset_index(drop=True) 
+     print('리뷰 학습 데이터 크기:',df.shape)
+     # 리뷰 학습 데이터 크기: (48817, 3)
+     ```
+
+![리뷰토큰](./img/리뷰학습데이터_토큰.jpeg)
+
+3. 리뷰 학습 데이터 토큰화
+
 ### 세미프로젝트 공유 드라이브
 
 https://drive.google.com/drive/folders/1MeadyLQRxVak7XgxYtBEE6JMIo5WTPwr?usp=sharing
