@@ -252,11 +252,36 @@
 
 4.  리뷰 학습 데이터 LSTM 학습 및 모델 저장
 
-5.  
+   ```python
+   from tensorflow.keras.preprocessing.sequence import pad_sequences
+   from tensorflow.keras.models import load_model
+   from tensorflow.keras import Sequential
+   from tensorflow.keras.layers import Dense, Embedding, LSTM
+   from sklearn.preprocessing import LabelEncoder
+   
+   train = pad_sequences(df['토큰'], maxlen=20)
+   label = df['score']
+   encoder = LabelEncoder()
+   batch_size = label.shape[0]
+   input_dim = 1
+   label = encoder.fit_transform(label)
+   label = np.reshape(label, (batch_size, input_dim))    
+   model = Sequential()
+   model.add(Embedding(40000, 128))
+   model.add(LSTM(128, dropout=0.2, recurrent_dropout=0.2))
+   model.add(Dense(1, activation='sigmoid'))
+   model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])    
+   hist = model.fit(train, label, batch_size=32, epochs=5)
+   model.save('./src/model.h5')
+   ```
 
-6.  
+   ![리뷰LSTM학습](./img/리뷰LSTM모델학습.jpeg)
 
-7. 
+# 5. 최종 리뷰 분석 및 맛집 추천
+
+
+
+3. 
 
 
 
