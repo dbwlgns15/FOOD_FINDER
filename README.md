@@ -1,3 +1,7 @@
+
+
+
+
 # FOOD_FINDER(동작구)
 
 동작구 음식점의 카카오맵 리뷰를 감성분석해서 맛집을 자동 추천해주는 시스템
@@ -223,7 +227,42 @@
 
 ![리뷰토큰](./img/리뷰학습데이터_토큰.jpeg)
 
-3. 리뷰 학습 데이터 토큰화
+3. 리뷰 학습 데이터 토큰화 및 토크나이저 저장
+
+   - 리뷰 학습 데이터 토큰화
+
+   ```python
+   from tensorflow.keras.preprocessing.text import Tokenizer
+   
+   tokenizer = Tokenizer(num_words=40000, oov_token = True)
+   tokenizer.fit_on_texts(df['토큰화댓글'])
+   df['토큰'] = tokenizer.texts_to_sequences(df['토큰화댓글'])
+   ```
+
+   ![리뷰토큰2](./img/리뷰학습데이터_토큰2.jpeg)
+
+   - 토크나이저 저장
+
+   ``` python
+   import pickle
+   
+   with open('./src/tokenizer.pickle', 'wb') as handle:
+           pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
+   ```
+
+4.  리뷰 학습 데이터 LSTM 학습 및 모델 저장
+
+5.  
+
+6.  
+
+7. 
+
+
+
+
+
+
 
 ### 세미프로젝트 공유 드라이브
 
