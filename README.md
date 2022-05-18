@@ -187,6 +187,8 @@
      df['review'] = df['review'].str.replace('[^ 가-힣]',' ').str.replace(' +',' ')
      ```
 
+![리뷰전처리](./img/리뷰학습데이터_전처리.jpeg)
+
 2. 리뷰 학습 데이터 형태소 분리
 
    - konlpy okt 모듈을 이용해서 형태소 분리
