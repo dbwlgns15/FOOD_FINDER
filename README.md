@@ -383,12 +383,29 @@
 
 3. 최종 맛집 추천
 
-   
+   - 가게별 리뷰 갯수 및 리뷰 스코어 평균 측정
 
-   
+   ```python
+   df = df.groupby('name').agg(review_count=('score', 'size'), score_mean=('score', 'mean')).reset_index()
+   print('최종 리뷰데이터 크기:',test_df.shape)
+   df.head()
+   # 최종 리뷰데이터 크기: (1490, 3)
+   ```
 
-   
-   
+   ![최종1](./img/최종1.jpeg)
+
+   - 리뷰 갯수가 5개 이상인 가게 및 리뷰스코어 0.9점 이상 내림차순 정렬
+
+   ```python
+   df2 = df[df['review_count'] > 4][df['score_mean'] > 0.9].sort_values(by='score_mean',ascending=False).reset_index(drop=True)
+   df2
+   ```
+
+   ![최종2](./img/최종2.jpeg)
+
+   - 최종 동작구 리뷰 스코어 상위 10개 맛집 리스트!
+
+   ![최종3](./img/최종3.jpeg)
 
 ## 6. 참고문헌
 
